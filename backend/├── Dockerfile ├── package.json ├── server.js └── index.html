@@ -1,0 +1,22 @@
+backend/
+├── Dockerfile
+├── package.json
+├── server.js
+└── index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CUP-GPU</title>
+</head>
+<body>
+  <h1>CUP-GPU è online 🚀</h1>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    console.log("Telegram WebApp avviata", tg.initDataUnsafe);
+  </script>
+</body>
+</html>
