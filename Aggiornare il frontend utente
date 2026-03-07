@@ -1,0 +1,14 @@
+function sendRequest(user_id, username, tipo, importo) {
+  fetch('/api/requests', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      user_id,
+      username,
+      tipo,
+      importo,
+      otp_enabled: false,
+      status: 'pending'
+    })
+  });
+}
