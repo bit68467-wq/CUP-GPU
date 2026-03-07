@@ -34,3 +34,11 @@ app.post('/api/requests/:userId/enable', (req, res) => {
 // Porta dinamica per Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.post('/api/requests', (req, res) => {
+  const newRequest = req.body;
+  const requests = JSON.parse(fs.readFileSync(REQUESTS_FILE));
+  requests.push(newRequest);
+  fs.writeFileSync(REQUESTS_FILE, JSON.stringify(requests, null, 2));
+  res.json({ success: true });
+});
+
