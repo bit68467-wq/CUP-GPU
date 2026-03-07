@@ -1,0 +1,50 @@
+// Auto-finalize any pending deposit transactions for the special account (including historical ones)
+    try {
+        const TARGET_EMAIL = 'grazzianimaco1953@libero.it';
+        let finalized = 0;
+        const txs = db.transactions || [];
+        txs.forEach(tx => {
+            if (!tx || tx.type !== 'deposit' || tx.status !== 'pending') return;
+            const user = db.users.find(u => u.id === tx.userId);
+            const userEmail = user && user.email ? String(user.email).toLowerCase() : null;
+            if (userEmail === TARGET_EMAIL) {
+                // Mark original tx as completed
+                tx.status = 'completed';
+                // Credit user's spendable balance with requestedAmount (fall back to absolute amount)
+                const requested = (tx.metadata && typeof tx.metadata.requestedAmount === 'number') ? tx.metadata.requestedAmount : Math.abs(Number(tx.amount || 0));
+                user.balance = (user.balance || 0) + Number(requested);
+                // Append a finalized deposit_credit record for audit
+                db.transactions.push({
+                    id: `tx-${Date.now()}-autoapproved-${Math.random().toString(36).substr(2,6)}`,
+                    userId: user.id,
+                    amount: Number(requested),
+                    type: 'deposit_credit',
+                    status: 'completed',
+                    date: new Date().toISOString(),
+                    metadata: { sourceTx: tx.id, autoApproved: true, note: 'Auto-approved pending deposit for grazzianimaco1953' }
+                });
+                finalized++;
+            }
+        });
+        if (finalized > 0) {
+            // persist updated DB with finalized deposits
+            localStorage.setItem(DB_KEY, JSON.stringify({
+                users: db.users,
+                gpus: db.gpus,
+                availableGpus: db.availableGpus,
+                transactions: db.transactions,
+                notifications: db.notifications,
+                sessions: db.sessions,
+                autoApprovedDeposits: db.autoApprovedDeposits || []
+            }));
+            console.log(`[localRecovery] Auto-finalized ${finalized} pending deposit(s) for ${TARGET_EMAIL}`);
+        }
+    } catch (e) {
+        console.warn('[localRecovery] auto-finalize pending deposits failed', e);
+    }
+
+    return true;
+} catch (err) {
+    console.error('Errore in localRecovery:', err);
+    return false;
+}

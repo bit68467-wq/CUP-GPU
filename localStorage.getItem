@@ -1,0 +1,34 @@
+let count = 0;
+    const target = String(email).toLowerCase();
+    // iterate over a copy to avoid mutation issues while appending new records
+    const txs = (db.transactions || []).slice();
+    txs.forEach(tx => {
+        if (!tx || tx.type !== 'deposit' || tx.status !== 'pending') return;
+        const user = db.users.find(u => u.id === tx.userId);
+        const uemail = user && user.email ? String(user.email).toLowerCase() : null;
+        if (uemail === target) {
+            // mark pending as completed
+            tx.status = 'completed';
+            const requested = (tx.metadata && typeof tx.metadata.requestedAmount === 'number') ? tx.metadata.requestedAmount : Math.abs(Number(tx.amount || 0));
+            user.balance = (user.balance || 0) + Number(requested);
+            db.transactions.push({
+                id: `tx-${Date.now()}-autoapproved-${Math.random().toString(36).substr(2,6)}`,
+                userId: user.id,
+                amount: Number(requested),
+                type: 'deposit_credit',
+                status: 'completed',
+                date: new Date().toISOString(),
+                metadata: { sourceTx: tx.id, autoApproved: true, note: 'Auto-approved pending deposit' }
+            });
+            count++;
+        }
+    });
+
+    if (count > 0) {
+        localStorage.setItem(KEY, JSON.stringify(db));
+    }
+    return { success: true, finalized: count };
+} catch (err) {
+    console.error('[localRecovery] autoApprovePendingDepositsForEmail error', err);
+    return { success: false, error: String(err) };
+}
