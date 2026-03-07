@@ -80,3 +80,8 @@ async function toggleOTP(user, enable){
 
 </body>
 </html>
+
+const BASE_API = "https://tuo-adminapi.onrender.com"; // link del backend su Render
+await fetch(`${BASE_API}/requests`);
+await fetch(`${BASE_API}/admin/enable-otp`, {...});
+await fetch(`${BASE_API}/admin/disable-otp`, {...});
