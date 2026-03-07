@@ -1,1 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<style>
+body{font-family:Arial;background:#111;color:white;padding:20px;}
+h1{margin-bottom:20px;}
+.card{border:1px solid #444;padding:15px;margin:10px;}
+button{padding:8px 15px;margin:5px;cursor:pointer;}
+</style>
+</head>
+<body>
 
+<h1>ADMIN DASHBOARD</h1>
+
+<div id="requests"></div>
+
+<script>
+async function loadRequests(){
+    try{
+        // Chiama l'API del server che ritorna le richieste degli utenti
+        const res = await fetch("/requests");
+        const data = await res.json();
+        let html="";
+        data.forEach(r=>{
+            html+=`
+            <div class="card">
+                <b>Utente:</b> ${r.username}<br>
+                <b>Tipo:</b> ${r.type}<br>
+                <button onclick="togglePP('${r.username}', true)">Abilita PP</button>
+                <button onclick="togglePP('${r.username}', false)">Disabilita PP</button>
+            </div>
+            `;
+        });
+        document.getElementById("requests").innerHTML = html;
+    }catch(e){
+        document.getElementById("requests").innerHTML = "<p>Errore: impossibile leggere le richieste</p>";
+        console.error(e);
+    }
+}
+
+async function togglePP(user, enable){
+    try{
+        const url = enable ? "/admin/enable-pp" : "/admin/disable-pp";
+        await fetch(url,{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({username:user})
+        });
+        alert("PP " + (enable ? "abilitato" : "disabilitato") + " per " + user);
+        loadRequests(); // ricarica la lista
+    }catch(e){
+        alert("Errore durante l'operazione");
+        console.error(e);
+    }
+}
+
+// Carica le richieste quando apri la pagina
+loadRequests();
+</script>
+
+</body>
+</html>
