@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    button { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel - Richieste Utenti</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Utente</th>
+        <th>Tipo</th>
+        <th>Importo</th>
+        <th>OTP</th>
+        <th>Azione</th>
+      </tr>
+    </thead>
+    <tbody id="requestsTable"></tbody>
+  </table>
+
+  <script>
+    async function loadRequests() {
+      const res = await fetch('/api/requests');
+      const requests = await res.json();
+      const tbody = document.getElementById('requestsTable');
+      tbody.innerHTML = '';
+      requests.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.username}</td>
+          <td>${r.tipo}</td>
+          <td>${r.importo}</td>
+          <td>${r.otp_enabled ? '✅' : '❌'}</td>
+          <td>
+            <button onclick="enableOTP(${r.user_id})">Attiva OTP</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function enableOTP(userId) {
+      await fetch(`/api/requests/${userId}/enable`, { method: 'POST' });
+      loadRequests(); // aggiorna la tabella
+    }
+
+    // Aggiorna la tabella ogni 10 secondi
+    loadRequests();
+    setInterval(loadRequests, 10000);
+  </script>
+</body>
+</html>
