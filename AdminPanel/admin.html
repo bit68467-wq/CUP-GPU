@@ -1,1 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pannello Admin</title>
+    <style>
+        body{font-family: Arial;background:#111;color:white;padding:20px;}
+        h1{margin-bottom:20px;}
+        input, button{padding:10px;margin:5px;font-size:16px;}
+        .card{border:1px solid #444;padding:15px;margin:10px 0;}
+    </style>
+</head>
+<body>
 
+<h1>Login Admin</h1>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button onclick="login()">Accedi</button>
+
+<div id="admin-panel" style="display:none;">
+    <h2>Pannello Admin</h2>
+    <button onclick="loadRequests()">Carica richieste utenti</button>
+    <div id="requests"></div>
+</div>
+
+<script>
+const ADMIN_USER = "admin";    // Modifica qui le credenziali
+const ADMIN_PASS = "123456";
+
+function login(){
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+    if(u === ADMIN_USER && p === ADMIN_PASS){
+        document.getElementById("username").style.display = "none";
+        document.getElementById("password").style.display = "none";
+        document.querySelector("button").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+    } else {
+        alert("Credenziali errate");
+    }
+}
+
+async function loadRequests(){
+    try{
+        const res = await fetch("/requests"); // Deve esistere sul backend
+        const data = await res.json();
+        let html="";
+        data.forEach(r=>{
+            html+=`
+            <div class="card">
+                <b>Utente:</b> ${r.username}<br>
+                <b>Tipo richiesta:</b> ${r.type}<br>
+                <button onclick="toggleOTP('${r.username}', true)">Abilita OTP</button>
+                <button onclick="toggleOTP('${r.username}', false)">Disabilita OTP</button>
+            </div>
+            `;
+        });
+        document.getElementById("requests").innerHTML = html;
+    }catch(e){
+        document.getElementById("requests").innerHTML = "<p>Errore: impossibile leggere le richieste</p>";
+        console.error(e);
+    }
+}
+
+async function toggleOTP(user, enable){
+    try{
+        const url = enable ? "/admin/enable-otp" : "/admin/disable-otp";
+        await fetch(url,{
+            method:"POST",
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({username:user})
+        });
+        alert("OTP " + (enable ? "abilitato" : "disabilitato") + " per " + user);
+        loadRequests();
+    }catch(e){
+        alert("Errore durante l'operazione");
+        console.error(e);
+    }
+}
+</script>
+
+</body>
+</html>
