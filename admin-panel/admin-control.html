@@ -1,1 +1,68 @@
+<!DOCTYPE html><html>
+<head>
+<title>Admin Control</title><style>
 
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:40px;
+}
+
+.card{
+border:1px solid #444;
+padding:15px;
+margin:10px;
+}
+
+button{
+padding:8px 15px;
+margin:5px;
+cursor:pointer;
+}
+
+</style></head><body><h1>ADMIN CONTROL PANEL</h1><button onclick="loadRequests()">Carica richieste utenti</button>
+
+<div id="requests"></div><script>
+
+async function loadRequests(){
+
+const res = await fetch("/requests.json");
+const data = await res.json();
+
+let html="";
+
+data.forEach(r=>{
+
+html+=`
+<div class="card">
+
+<b>Utente:</b> ${r.username}<br>
+<b>Tipo:</b> ${r.type}<br>
+
+<button onclick="enablePP('${r.username}')">Abilita PP</button>
+<button onclick="disablePP('${r.username}')">Disabilita PP</button>
+
+</div>
+`;
+
+});
+
+document.getElementById("requests").innerHTML=html;
+
+}
+
+function enablePP(user){
+
+alert("PP abilitato per "+user);
+
+}
+
+function disablePP(user){
+
+alert("PP disabilitato per "+user);
+
+}
+
+</script></body>
+</html>
