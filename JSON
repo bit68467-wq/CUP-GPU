@@ -13,3 +13,16 @@
     "webpack-cli": "^4.0.0"
   }
 }
+
+fetch('/api/requests', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    user_id: 123,
+    username: 'Mario',
+    tipo: 'deposito',
+    importo: 50,
+    otp_enabled: false,
+    status: 'pending'
+  })
+});
