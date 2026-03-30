@@ -24,7 +24,3 @@ Telegram login:
 - Simulated; creates a Telegram-style user tied to device: telegram:{deviceId}@telegram.local
 
 No demo account is shown anywhere. The mock behaves like a real server and uses the same function signatures as a REST API.
-error: failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory
-[34m[1m==>(B[m [1mChecking out commit 8c1cb24acbc2b4097de90572b4364c38a9edbcc1 in branch radice(B[m
-#1 [internal] load build definition from Dockerfile
-#1 DONE 0.0s
